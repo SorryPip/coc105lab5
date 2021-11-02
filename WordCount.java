@@ -23,7 +23,7 @@ public class WordCount {
                     ) throws IOException, InterruptedException {
       StringTokenizer itr = new StringTokenizer(value.toString());
 
-      //Tokenised strongs contain punctuations, e.g. comma, and fullstop
+      //Tokenised strings contain punctuations, e.g. comma, and fullstop
       //Your task is to ensure that only words themselves are used as keys
 
       while (itr.hasMoreTokens()) {
