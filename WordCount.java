@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
@@ -11,24 +12,33 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class WordCount {
+public class MyBs {
 
   public static class WCMapper
        extends Mapper<Object, Text, Text, IntWritable>{
 
     private final static IntWritable one = new IntWritable(1);
-    private Text word = new Text();
+    private Text word3 = new Text();
+    private ArrayList<String> parts = new ArrayList<String>();
+    
 
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
       StringTokenizer itr = new StringTokenizer(value.toString());
-
-      //Tokenised strings contain punctuations, e.g. comma, and fullstop
-      //Your task is to ensure that only words themselves are used as keys
-
+      
+      if (itr.hasMoreTokens()) parts.add(itr.nextToken());
+      if (itr.hasMoreTokens()) parts.add(itr.nextToken());
+      if (itr.hasMoreTokens()) parts.add(itr.nextToken());
+      if (!parts.isEmpty()) {
+    	  word3.set(String.join(" ", parts));
+          context.write(word3, one);
+      }
+      
       while (itr.hasMoreTokens()) {
-	word.set(itr.nextToken());
-        context.write(word, one);
+        parts.remove(0);
+        parts.add(itr.nextToken(" "));
+        word3.set(String.join(" ", parts));
+        context.write(word3, one);
       }
     }
   }
@@ -52,7 +62,7 @@ public class WordCount {
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
     Job job = Job.getInstance(conf, "word count");
-    job.setJarByClass(WordCount.class);
+    job.setJarByClass(MyBs.class);
     job.setMapperClass(WCMapper.class);
     job.setReducerClass(WCReducer.class);
     job.setOutputKeyClass(Text.class);
@@ -62,4 +72,3 @@ public class WordCount {
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }
-
